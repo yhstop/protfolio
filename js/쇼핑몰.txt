@@ -1,0 +1,189 @@
+=========== index.js ===========
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
+
+=========== app.js ============
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Routes, Route } from "react-router-dom";
+import ProductAll from "./pages/ProductAll";
+import Login from "./pages/Login";
+import ProductDetail from "./pages/ProductDetail";
+import Navbar from "./component/Navbar";
+
+function App() {
+  // npm install react-router-dom@6 설치
+  //1. 메인페이지 상품목록, 로그인페이지, 상품상세페이지
+  //2. 메인페이지에는 전체 상품 목록을 보여준다
+  // 3. 로그인 버튼을 클릭하면  로그인 페이지가 보여준다
+  // 4. 상품상세페이지를 클릭해으나 로그인인 안됐을 경우 로그인페이지가 보인다
+  // 5. 로그인이 되어 있을경우에는 상품 상세 페이지를 볼수 있다
+  // 6. 로그아웃버튼을 클릭하면 로그아웃이 된다
+  // 7. 로그아웃되면 상품상세페이지를 볼수 없고 다시 로그인 페이지가 보인다
+  // 8. 로그인을 하면 로그아웃이 보이고 로그아웃을 클릭하면 로그인페이지가 보인다
+  // 9. 상품을 검색할수 있다
+  // nav바는 페이지가 아니라 컴포넌트다
+  return (
+    <div>
+      <Navbar></Navbar>
+      <Routes>
+        <Route path="/" element={<ProductAll />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/product/:id" element={<ProductDetail />}></Route>
+      </Routes>
+    </div>
+  );
+}
+
+export default App;
+
+================app.css===================
+.login-button {
+  display: flex;
+  justify-content: flex-end;
+  margin: 20px;
+}
+.logo {
+  display: flex;
+  justify-content: center;
+}
+.menulist {
+  display: flex;
+  list-style: none;
+}
+.menulist li {
+  padding: 10px;
+}
+.menuGnb {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid red;
+  align-items: center;
+}
+input[type="text"] {
+  border: none;
+  border-bottom: 1px solid #555;
+}
+.search {
+  border: 1px solid blue;
+}
+
+======pages Login.js.ProductAll.js,ProductDetail.js============
+=====ProductAll.js=========
+import React, { useEffect, useState } from "react";
+import ProductCard from "../component/ProductCard";
+import { Col, Container, Row } from "react-bootstrap";
+//json-server npm
+//api호출
+function ProductAll() {
+  //UI에보여줘야하니까 useState변수에 저장
+  const [productList, setProductList] = useState([]);
+  const getProducts = async () => {
+    let url = "http://localhost:3004/products";
+    let response = await fetch(url);
+    let data = await response.json();
+    setProductList(data);
+  };
+  useEffect(() => {
+    getProducts();
+  }, []);
+
+  return (
+    <div>
+      메인페이지 전체상품목록
+      <Container>
+        <Row>
+          {productList.map((menu) => (
+            <Col lg={3}>
+              <ProductCard item={menu} />
+            </Col>
+          ))}
+        </Row>
+      </Container>
+    </div>
+  );
+}
+
+export default ProductAll;
+
+=============== component Navbar.js ProductCard.js ========
+=====  Navbar.js =====
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import React from "react";
+//폰트어썸 react버전
+function Navbar() {
+  const menuList = [
+    "여성",
+    "Divided",
+    "남성",
+    "신생아/유아",
+    "아동",
+    "H&M Home",
+    "Sale",
+    "지속가능성",
+  ];
+  return (
+    <div>
+      <div>
+        <div className="login-button">
+          <FontAwesomeIcon Icon={faUser} />
+          <div>로그인</div>
+        </div>
+      </div>
+      <div className="logo">
+        <img
+          width={100}
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/H%26M-Logo.svg/2560px-H%26M-Logo.svg.png"
+          alt="로고"
+        />
+      </div>
+      <div className="menuGnb">
+        <div></div>
+        <ul className="menulist">
+          {menuList.map((menu) => (
+            <li>{menu}</li>
+          ))}
+        </ul>
+        <div className="search">
+          <FontAwesomeIcon icon={faSearch} />
+          <input type="text" placeholder="제품검색" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Navbar;
+
+========== ProductCard ===========
+
+import React from "react";
+
+function ProductCard({ item }) {
+  return (
+    <div>
+      <img src={item?.img} />
+      <div>con choice</div>
+      <div>{item?.title}</div>
+      <div>{item?.price}</div>
+      <div>{item?.new === true ? "신제품" : ""}</div>
+    </div>
+  );
+}
+
+export default ProductCard;
+
+
+
